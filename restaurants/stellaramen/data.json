@@ -1,0 +1,21 @@
+{
+    "name": "Stella Ramen",
+    "description": "很好吃的拉麵又便衣， 快來來",
+    "location": {
+        "type": "Point",
+        "coordinates": [25.041288, 121.555936]
+    },
+    "location_name": {
+        "city": "Taipei",
+        "address": "zhongxiao west road section 4"
+    },
+    "opening_time": {
+        "1" : ["8-10" ,"17-20"],
+        "2" : ["8-10" ,"17-20"],
+        "3" : ["8-10" ,"17-20"],
+        "4" : ["8-10" ,"17-20"],
+        "5" : ["8-10" ,"17-20"],
+        "6" : [],
+        "7" : ["17-22"]
+    }
+}

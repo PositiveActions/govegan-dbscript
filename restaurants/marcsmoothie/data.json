@@ -1,0 +1,21 @@
+{
+    "name": "Marc's smoothies",
+    "description": "Come drink the best smoothies in an very convenient place, 很好喝",
+    "location": {
+        "type": "Point",
+        "coordinates": [25.032969, 121.565414]
+    },
+    "location_name": {
+        "city": "taipei",
+        "address": "xinyi road section 5"
+    },
+    "opening_time": {
+        "1" : ["8-10" ,"17-20"],
+        "2" : ["8-10" ,"17-20"],
+        "3" : ["8-10" ,"17-20"],
+        "4" : ["8-10" ,"17-20"],
+        "5" : ["8-10" ,"17-20"],
+        "6" : [],
+        "7" : []
+    }
+}
