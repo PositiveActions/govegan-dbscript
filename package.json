@@ -1,0 +1,25 @@
+{
+  "name": "db_scripts",
+  "version": "1.0.0",
+  "description": "The init_entries.py script is called to initialize the database data based on what we find in the `restaurants/init` folder - Each restaurant folder contain a `data.json`file that have the generale information about the restaurant - We will also find an img folder, that contain the restaurant image.     - A file named `thumbnail.png` in this folder is mandatory.",
+  "main": "init_entries.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PositiveActions/govegan-dbscript.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PositiveActions/govegan-dbscript/issues"
+  },
+  "homepage": "https://github.com/PositiveActions/govegan-dbscript#readme",
+  "dependencies": {
+    "arg": "^4.1.1",
+    "axios": "^0.19.0",
+    "form-data": "^2.5.1",
+    "ora": "^4.0.2"
+  }
+}

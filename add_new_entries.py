@@ -3,7 +3,7 @@ import os
 import json
 import requests
 from pathlib import Path
-
+import shutil
 
 print("The arguments are: ", str(sys.argv))
 if len(sys.argv) < 3:
@@ -14,7 +14,7 @@ headers = {'Content-Type': 'application/json',
            'Authorization': f"Bearer {apiKey}"}
 
 headersImg = {'Authorization': f"Bearer {apiKey}"}
-
+pathRestaurant= "restaurants/add"
 print(f"apiUrl: {apiUrl}")
 print(f"apiUrl: {apiKey}")
 # Get the json data
@@ -50,18 +50,21 @@ def uploadImg(path, name, id, model):
 
 
 def processRestaurants(item):
-    pathData = Path(f"restaurants/{item}/data.json")
+    pathData = Path(f"{pathRestaurant}/{item}/data.json")
     with open(pathData) as json_file:
         data = json.load(json_file)
         resData = postRestaurant(data)
-        uploadImg(Path(f"restaurants/{item}/img"),"thumbnail.png", resData["id"], {"ref": "restaurant", "field": "thumbnail"})
+        uploadImg(Path(f"{pathRestaurant}/{item}/img"),"thumbnail.png", resData["id"], {"ref": "restaurant", "field": "thumbnail"})
         resInfoData = postRestaurantInfo(resData["id"], data)
-        for image in os.listdir(Path(f"restaurants/{item}/img")):
-            uploadImg(Path(f"restaurants/{item}/img"), image,  resInfoData["id"], {"ref": "restaurantinfo", "field": "pictures"})
+        for image in os.listdir(Path(f"{pathRestaurant}/{item}/img")):
+            uploadImg(Path(f"{pathRestaurant}/{item}/img"), image,  resInfoData["id"], {"ref": "restaurantinfo", "field": "pictures"})
 
-
-for item in os.listdir("restaurants"):
+# upload the images and restaurant data
+for item in os.listdir(pathRestaurant):
     processRestaurants(item)
+    # remove directories from and and moved them to init
+    shutil.move(f"pathRestaurant/{item}", "restaurants/init")
 
 
-# upload the images
+
+
