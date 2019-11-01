@@ -1,26 +1,12 @@
 const requests = require('axios');
-const arg = require('arg');
 const Ora = require('ora');
 const FormData = require('form-data');
 const fs = require('fs');
 const path = require('path')
 
-const args = arg({
-    // Types
-    '--apiUrl': String,
-    '--apiKey': String,
-});
-
 const spinner = new Ora();
 
-if (!args['--apiUrl'] || !args['--apiKey']) {
-    console.log('All options are mandatory --apiUrl --apiKey');
-    process.exit(1);
-    return;
-}
-
-const apiUrl = args['--apiUrl'];
-const apiKey = args['--apiKey'];
+let apiUrl, apiKey;
 
 
 
@@ -88,10 +74,12 @@ async function processRestaurants(item) {
     }
 }
 
-async function main() {
+module.exports = async function (apiUrl, apiKey) {
     try {
         spinner.text = "#### Starting the database initialization ####";
         spinner.start();
+        apiUrl = apiUrl;
+        apiKey = apiKey;
         fs.readdirSync(pathRestaurant).forEach(async rest => {
             spinner.succeed();
             spinner.text = `Processing restaurant ${rest}`;
@@ -104,8 +92,4 @@ async function main() {
         console.error(err);
     }
 }
-
-
-
-main();
 
