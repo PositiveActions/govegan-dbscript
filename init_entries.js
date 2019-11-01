@@ -53,7 +53,6 @@ function postRestaurantInfo(id, data) {
 
 function uploadImg(pathGiven, name, id, model) {
     const newPath = path.join(pathGiven, name)
-    console.log('newPath', newPath);
     const form = new FormData();
     form.append('files', fs.createReadStream(newPath));
     form.append('refId', id);
@@ -73,30 +72,33 @@ async function processRestaurants(item) {
     const rawData = fs.readFileSync(pathData);
     const jsonData = JSON.parse(rawData);
     try {
-        
         const resPost = await postRestaurant(jsonData)
         await uploadImg(pathImg, "thumbnail.jpeg", resPost["_id"], {
             "ref": "restaurant", "field": "thumbnail"
-        })
-        resInfoData = postRestaurantInfo(resPost['_id'], data)
-        print('resInfoData', resInfoData)
-        fs.readdirSync(path.join(pathRestaurant, 'img')).forEach(image => {
-            if (image != 'thumbnail.png') {
-                pictures.append(pathImg.joinpath(image))
-                uploadImg(pathImg, image, resInfoData["_id"], { "ref": "restaurantinfo", "field": "pictures" })
+        });
+        resInfoData = await postRestaurantInfo(resPost['_id'], jsonData)
+        fs.readdirSync(pathImg).forEach(async image => {
+            const imageStr = image.split(".").length > 1 ? image.split(".")[0] : null;
+            if (imageStr && imageStr !== 'thumbnail') {
+                await uploadImg(pathImg, image, resInfoData["_id"], { "ref": "restaurantinfo", "field": "pictures" })
             }
-            processRestaurants(rest)
         });
     } catch(err) {
         console.error(err);
     }
 }
 
-function main() {
+async function main() {
     try {
-        fs.readdirSync(pathRestaurant).forEach(rest => {
-            console.log(rest);
-            processRestaurants(rest)
+        spinner.text = "#### Starting the database initialization ####";
+        spinner.start();
+        fs.readdirSync(pathRestaurant).forEach(async rest => {
+            spinner.succeed();
+            spinner.text = `Processing restaurant ${rest}`;
+            spinner.start();
+            await processRestaurants(rest)
+            spinner.succeed();
+            spinner.clear();
         });
     } catch (err) {
         console.error(err);
