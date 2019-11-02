@@ -16,3 +16,7 @@ To call the script two params are mandatory apiUrl and apiKey.
 example: `python inti_entries.py API_URL API_KEY`
 
 
+#### Prerequisites ####
+- You need to install NodeJS > 8.x.x
+- Git clone the project and run `npm install`
+- Have the api_url and api_key
