@@ -1,3 +1,22 @@
+const shell = require("shelljs");
+const util = require('util');
+const fs = require('fs');
+const readdir = util.promisify(fs.readdir);
+const pathAdd = 'restaurants/add';
+const processRestaurants = require('./init_entries.js')
+
+module.exports = async function (apiUrl, apiKey) {
+    try {
+        const restaurants = await readdir(pathAdd);
+        await processRestaurants(apiUrl, apiKey);
+        const resAdd = restaurants.map(res => 'restaurants/add/' + res);
+        //  emptying the directory to init
+        shell.mv('-f', resAdd, 'restaurants/init/');
+    } catch(err) {
+        throw new Error(err);
+    }
+}
+
 // const requests = require('axios');
 // const arg = require('arg');
 // const Ora = require('ora');
@@ -58,7 +77,7 @@
 //     form.append('refId', id);
 //     form.append('ref', model["ref"]);
 //     form.append('field', model["field"]);
-    
+
 //     const head = {...headersImg, ...form.getHeaders()}
 //     return requests.post(`${apiUrl}/upload`, form, {
 //         headers: head,

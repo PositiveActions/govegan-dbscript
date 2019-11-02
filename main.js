@@ -3,7 +3,6 @@
 const inquirer = require("inquirer");
 const chalk = require("chalk");
 const figlet = require("figlet");
-const shell = require("shelljs");
 
 const initJs = require('./scripts/init_entries.js');
 const addJs = require('./scripts/add_entries.js');

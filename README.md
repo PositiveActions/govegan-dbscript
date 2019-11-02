@@ -7,13 +7,8 @@ The init_entries.py script is called to initialize the database data based on wh
     - the other image can be named as you wish
 
 
-- the `restaurants/add` is used to add new restaurant to the databse
-- You have to use the
--- the folder will automatically be emptied and added to the init function when the restaurant processing is finished
-
-
-To call the script two params are mandatory apiUrl and apiKey.
-example: `python inti_entries.py API_URL API_KEY`
+- the `restaurants/add` is used to add new restaurant to the database
+- the folder will automatically be emptied and added to the init function when the restaurant processing is finished
 
 
 #### Prerequisites ####
