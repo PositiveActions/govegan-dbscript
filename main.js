@@ -8,7 +8,7 @@ const shell = require("shelljs");
 const initJs = require('./scripts/init_entries.js');
 const addJs = require('./scripts/add_entries.js');
 
-const cmdList = [{name: "init", value: "init"}, {name: "add", value: "add"}];
+const cmdList = ["init", "add"];
 const cmdObj = {
     "init": {
         func: (apiUrl, apiKey) => initJs(apiUrl, apiKey)
@@ -33,7 +33,7 @@ const init = () => {
 const askQuestions = () => {
     const questions = [
         {
-            name: "API URL",
+            name: "API_URL",
             type: "input",
             message: "What is the api url to go vegan backend ?",
             validate: function(value) {
@@ -48,7 +48,7 @@ const askQuestions = () => {
             }
         },
         {
-            name: "API KEY",
+            name: "API_KEY",
             type: "input",
             message: "What is the api key to access vegan backend ?",
             validate: function(value) {
@@ -64,28 +64,12 @@ const askQuestions = () => {
         },
         {
             name: "CMD",
-            type: "input",
+            type: "list",
             message: "What do you want to do ?",
-            choices: [{name: "init", value: "init"}, {name: "add", value: "add"}],
-            validate: function(value) {
-                return new Promise((resolve) => {
-                    if (!value)  {
-                        displayError("You need to provide the a cmd")
-                        resolve(false);
-                        return;
-                    }
-                    resolve(true);
-                });
-            }
+            choices: cmdList
         },
     ];
     return inquirer.prompt(questions);
-};
-
-const createFile = (filename, extension) => {
-    const filePath = `${process.cwd()}/${filename}.${extension}`
-    shell.touch(filePath);
-    return filePath;
 };
 
 const displaySuccess = mess => {
@@ -106,12 +90,18 @@ const run = async () => {
 
     // ask questions
     const answers = await askQuestions();
-    const { apiUrl, apiKey, cmd } = answers;
-
-    displaySuccess(`Executing ${cmd}`);
+    const { API_URL, API_KEY, CMD } = answers;
+    console.log('answers', answers);
+    displaySuccess(`Executing ${CMD}`);
     // Execute the command
-    cmdObj[cmd].func(apiUrl, apiKey);
-    displaySuccess(`Finished man ! you are so cool`);
+    try {
+        await cmdObj[CMD].func(API_URL, API_KEY);
+        displaySuccess(`Finished man ! you are so cool`);
+        process.exit();
+    } catch(err) {
+        displayError(err);
+        process.exit(1);
+    }
 };
 
 run();

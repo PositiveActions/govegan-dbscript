@@ -3,20 +3,14 @@ const Ora = require('ora');
 const FormData = require('form-data');
 const fs = require('fs');
 const path = require('path')
+const util = require('util');
+
+const readdir = util.promisify(fs.readdir);
 
 const spinner = new Ora();
 
-let apiUrl, apiKey;
-
-
-
-const headers = {
-    'Content-Type': 'application/json',
-    'Authorization': "Bearer " + apiKey
-}
-
-const headersImg = { 'Authorization': `Bearer ${apiKey}` }
-const pathRestaurant = "restaurants/init"
+let apiUrl, apiKey, headers, headersImg;
+const pathRestaurant = "restaurants/init";
 
 
 function postRestaurant(data) {
@@ -26,7 +20,7 @@ function postRestaurant(data) {
         "opening_time": data["opening_time"],
         "location_name": data["location_name"]
     }
-    return requests.post(`${apiUrl}/restaurants`, restData, { headers }).then(res => Promise.resolve(res.data));
+    return requests.post(`${apiUrl}/restaurants`, restData, { headers }).then(res => res.data);
 }
 
 function postRestaurantInfo(id, data) {
@@ -34,7 +28,7 @@ function postRestaurantInfo(id, data) {
         "restaurant_id": id,
         "description": data["description"],
     }
-    return requests.post(`${apiUrl}/restaurantinfos`, resInfoData, { headers }).then(res => Promise.resolve(res.data));
+    return requests.post(`${apiUrl}/restaurantinfos`, resInfoData, { headers }).then(res => res.data);
 }
 
 function uploadImg(pathGiven, name, id, model) {
@@ -44,8 +38,7 @@ function uploadImg(pathGiven, name, id, model) {
     form.append('refId', id);
     form.append('ref', model["ref"]);
     form.append('field', model["field"]);
-    
-    const head = {...headersImg, ...form.getHeaders()}
+    const head = { ...headersImg, ...form.getHeaders() }
     return requests.post(`${apiUrl}/upload`, form, {
         headers: head,
     });
@@ -59,37 +52,44 @@ async function processRestaurants(item) {
     const jsonData = JSON.parse(rawData);
     try {
         const resPost = await postRestaurant(jsonData)
-        await uploadImg(pathImg, "thumbnail.jpeg", resPost["_id"], {
-            "ref": "restaurant", "field": "thumbnail"
-        });
-        resInfoData = await postRestaurantInfo(resPost['_id'], jsonData)
-        fs.readdirSync(pathImg).forEach(async image => {
+        const resInfoData = await postRestaurantInfo(resPost['_id'], jsonData)
+        const images = await readdir(pathImg);
+        await Promise.all(images.map(image => {
             const imageStr = image.split(".").length > 1 ? image.split(".")[0] : null;
             if (imageStr && imageStr !== 'thumbnail') {
-                await uploadImg(pathImg, image, resInfoData["_id"], { "ref": "restaurantinfo", "field": "pictures" })
+                return uploadImg(pathImg, image, resInfoData["_id"], { "ref": "restaurantinfo", "field": "pictures" })
             }
-        });
-    } catch(err) {
+            if (imageStr === 'thumbnail') {
+                return uploadImg(pathImg, image, resPost["_id"], {
+                    "ref": "restaurant", "field": "thumbnail"
+                });
+            }
+            return Promise.resolve();
+        }));
+    } catch (err) {
         console.error(err);
+        throw new Error(err);
     }
 }
 
-module.exports = async function (apiUrl, apiKey) {
+module.exports = async function (url, key) {
     try {
-        spinner.text = "#### Starting the database initialization ####";
-        spinner.start();
-        apiUrl = apiUrl;
-        apiKey = apiKey;
-        fs.readdirSync(pathRestaurant).forEach(async rest => {
-            spinner.succeed();
-            spinner.text = `Processing restaurant ${rest}`;
-            spinner.start();
-            await processRestaurants(rest)
-            spinner.succeed();
-            spinner.clear();
-        });
+        apiUrl = url;
+        apiKey = key
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': "Bearer " + apiKey
+        }
+        headersImg = { 'Authorization': `Bearer ${apiKey}` }
+        const restaurants = await readdir(pathRestaurant);
+        await Promise.all(restaurants.map(rest => processRestaurants(rest)));
+        return 'finish';
     } catch (err) {
-        console.error(err);
+        if (err.response) {
+            throw new Error(err.response);
+        } else {
+            throw new Error(err);
+        }
     }
 }
 
